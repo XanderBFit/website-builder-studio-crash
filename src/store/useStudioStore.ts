@@ -136,14 +136,16 @@ export interface StudioProjectItem {
   color: string;
 }
 
+export const MAX_QUESTIONS = 12;
+
 export interface StudioConfigState {
   // Navigation & Wizard Flow
-  currentStep: number; // 0 to 8
+  currentStep: number; // 0 to MAX_QUESTIONS (12)
   studioMode: 'wizard' | 'split-studio' | 'full-site' | 'code-export';
   activePreviewPage: 'home' | 'works' | 'technology' | 'contact';
   isTransitioningRoute: boolean;
 
-  // Step 0: Welcome & Brand Identity
+  // Question 1: Brand Name & URL
   userName: string;
   brandName: string;
   websiteUrl: string;
@@ -152,29 +154,22 @@ export interface StudioConfigState {
   brandManifesto: string;
   ctaPrimary: string;
 
-  // Step 1: Style & Color Theme
+  // Question 2: Style
   aestheticStyle: AestheticStyle;
+
+  // Question 3: Color Theme
   colorTheme: ColorThemeId;
-  fontPairing: 'syne-grotesk' | 'instrument-serif' | 'jetbrains-tech';
-  gridOverlay: boolean;
 
-  // Step 2: Elements & Architecture
-  navLayout: 'floating-pill' | 'brutalist-border' | 'minimal-corners';
-  heroLayout: 'center-monolith' | 'editorial-asymmetric' | 'kinetic-marquee';
-  enableCustomCursor: boolean;
-  enableMagneticButtons: boolean;
-  enableStatusTicker: boolean;
-  showBentoSpecs: boolean;
-
-  // Step 3: 2D OR 3D Dimension
+  // Question 4: Dimension
   dimensionMode: RenderDimension;
-  depthIntensity: number; // 0 to 1
-  cameraFov: number;
-  wireframeOverlay: boolean;
 
-  // Step 4: Canvas, Shaders & Postprocessing
+  // Question 5: Canvas Engine
   canvasEngine: CanvasEngine;
-  geometryPrimitive: 'torus-knot' | 'icosahedron-crystal' | 'metaball-cluster' | 'cyber-monolith' | 'gaussian-pointcloud' | 'architectural-ring';
+
+  // Question 6: 3D Primitive
+  geometryPrimitive: GeometryPrimitive;
+
+  // Question 7: Shaders & Postprocessing
   shaderMaterial: 'iridescent-transmission' | 'tsl-plasma-displace' | 'liquid-chrome' | 'wireframe-hologram';
   postBloom: boolean;
   postChromatic: boolean;
@@ -182,29 +177,46 @@ export interface StudioConfigState {
   postVignette: boolean;
   bloomIntensity: number;
   distortionStrength: number;
+  wireframeOverlay: boolean;
+  cameraFov: number;
 
-  // Step 5: Images, Videos & DOM-to-GL Sync
+  // Question 8: Media & DOM-to-GL Sync
   mediaShaderMode: MediaShaderMode;
   enableTroika3DText: boolean;
   enableVideoReelPlane: boolean;
   mediaHoverDistortion: number;
   activeMediaFilter: 'none' | 'duotone-accent' | 'high-contrast-mono' | 'cyber-matrix';
 
-  // Step 6: Motion, Scroll, Theatre.js & Physics
+  // Question 9: Motion & Scroll
   motionScrollPreset: MotionScrollPreset;
+
+  // Question 10: 3D Physics
   physicsMode: PhysicsMode;
   typographyKineticMode: TypographyKineticMode;
   theatreCameraPath: 'orbit-cinematic' | 'dolly-zoom' | 'top-down-architect' | 'free-interactive';
   enableRiveInteractiveBadge: boolean;
   physicsImpulseCounter: number;
 
-  // Step 7: Sensory, Audio & Routing
+  // Question 11: Sensory Audio
   audioPreset: AudioSynthPreset;
   audioVolume: number;
+
+  // Question 12: Routing & Deployment
   routingTransition: RoutingTransitionMode;
   compressionPreset: CompressionPreset;
 
-  // Step 8: Export & Live Preview
+  // UI Micro-settings
+  fontPairing: 'syne-grotesk' | 'instrument-serif' | 'jetbrains-tech';
+  gridOverlay: boolean;
+  navLayout: 'floating-pill' | 'brutalist-border' | 'minimal-corners';
+  heroLayout: 'center-monolith' | 'editorial-asymmetric' | 'kinetic-marquee';
+  enableCustomCursor: boolean;
+  enableMagneticButtons: boolean;
+  enableStatusTicker: boolean;
+  showBentoSpecs: boolean;
+  depthIntensity: number;
+
+  // Showcase Items
   projects: StudioProjectItem[];
 
   // Actions
@@ -261,13 +273,13 @@ export const useStudioStore = create<StudioConfigState>()(
   persist(
     (set) => ({
       currentStep: 0,
-      studioMode: 'split-studio',
+      studioMode: 'wizard',
       activePreviewPage: 'home',
       isTransitioningRoute: false,
 
       userName: 'Alex Mercer',
       brandName: 'STUDIO CRASH',
-      websiteUrl: 'https://studiocrash.design',
+      websiteUrl: 'https://studiocrash.web.app',
       brandTagline: 'ARCHITECTING DIGITAL GRAVITY & REAL-TIME SPATIAL EXPERIENCES',
       industry: 'Creative Technology & Digital Architecture Studio',
       brandManifesto:
@@ -285,9 +297,9 @@ export const useStudioStore = create<StudioConfigState>()(
       enableMagneticButtons: true,
       enableStatusTicker: true,
       showBentoSpecs: true,
+      depthIntensity: 0.85,
 
       dimensionMode: 'hybrid-sync',
-      depthIntensity: 0.85,
       cameraFov: 42,
       wireframeOverlay: false,
 
@@ -321,8 +333,8 @@ export const useStudioStore = create<StudioConfigState>()(
 
       projects: DEFAULT_PROJECTS,
 
-      setStep: (step) => set({ currentStep: Math.max(0, Math.min(8, step)) }),
-      nextStep: () => set((s) => ({ currentStep: Math.min(8, s.currentStep + 1) })),
+      setStep: (step) => set({ currentStep: Math.max(0, Math.min(MAX_QUESTIONS, step)) }),
+      nextStep: () => set((s) => ({ currentStep: Math.min(MAX_QUESTIONS, s.currentStep + 1) })),
       prevStep: () => set((s) => ({ currentStep: Math.max(0, s.currentStep - 1) })),
       setStudioMode: (studioMode) => set({ studioMode }),
       setActivePreviewPage: (page) => {
@@ -398,7 +410,7 @@ export const useStudioStore = create<StudioConfigState>()(
       },
     }),
     {
-      name: 'studio-crash-master-config-v1',
+      name: 'studio-crash-master-config-v2',
       storage: createJSONStorage(() => safeStorage),
     }
   )
